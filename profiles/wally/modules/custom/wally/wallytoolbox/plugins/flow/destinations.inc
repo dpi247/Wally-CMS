@@ -161,7 +161,7 @@ function wallytoolbox_destinations_flow_get_view_results($feed_infos) {
   ));*/
 
   $options = array(
-    'operator' => '=',
+    'operator' => 'in',
     'value' => array($redacblock_name),
     'group' => '0',
     'exposed' => FALSE,
